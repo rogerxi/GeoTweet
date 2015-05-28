@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+        <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+        <script type="text/javascript" src="http://d3js.org/d3.v2.js"></script>
+        <style type="text/css">
+            
+            html, body, #map {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+        
+            .geoloc, .geoloc svg {
+                position: absolute;
+            }
+        
+            .geoloc svg {
+                width: 300px;
+                height: 50px;
+                padding-right: 10px;
+                font: 10px sans-serif;
+            }
+        
+            .geoloc circle {
+                fill: red;
+                stroke: red;
+                stroke-width: 1px;
+            }
+        
+            .geoloc text {
+                fill: red;
+            }
+        
+            .geoloc rect {
+                width: 20px;
+                height: 10px;
+                fill: red;
+                stroke: blue;
+                stroke-width: 2px;
+            }
+        
+        </style>
+    </head>
+    <body>
+        <div id="timer"><p id="val"></p></div>
+        <div id="map"></div>
+        
+        <script type="text/javascript">
+            // Create a google map
+            var map = new google.maps.Map(d3.select("#map").node(), {
+                                          zoom: 11,
+                                          center: new google.maps.LatLng(40.7127, -73.80),
+                                          mapTypeId: google.maps.MapTypeId.TERRAIN
+                                          });
+                                          
+            // Continuously update the map
+            setInterval(function () {
+                        var d = new Date();
+                        document.getElementById("val").innerHTML = d.toLocaleString();
+                        
+                        var ts = String(Math.floor(Date.now() / 1000) - 3);
+                        var file = "data/".concat(ts.concat(".json"));
+                        // Fetch streaming data
+                        stream(file);
+                        }, 1);
+            
+            function stream(file) {
+                d3.json(file, function(data) {
+                        // Create a overlap view
+                        var overlay = new google.maps.OverlayView();
+                        
+                        // Add the container when the overlay is added to the map.
+                        overlay.onAdd = function() {
+                            var layer = d3.select(this.getPanes().overlayLayer).append("div")
+                                .attr("class", "geoloc");
+                        
+                            // Draw each marker as a separate SVG element
+                            overlay.draw = function() {
+                                var projection = this.getProjection(),
+                                padding = 10;
+                        
+                                var marker = layer.selectAll("svg")
+                                    .data(d3.entries(data))
+                                    .each(transform)
+                                    .enter().append("svg:svg")
+                                    .each(transform)
+                                    .attr("class", "marker");
+                        
+                                // Add a circle
+                                marker.append("svg:circle")
+                                    .attr("r", 4.5)
+                                    .attr("cx", padding)
+                                    .attr("cy", padding)
+                                    .append("svg:animate")
+                                    .attr("attributeType", "XML")
+                                    .attr("attributeName", "opacity")
+                                    .attr("from", "1")
+                                    .attr("to", "0")
+                                    .attr("dur", "3s")
+                                    .attr("repeatCount", 1)
+                                    .attr("fill", "freeze");
+                        
+                                // Add a label
+                                marker.append("svg:text")
+                                    .attr("x", padding + 8)
+                                    .attr("y", padding)
+                                    .attr("dy", ".31em")
+                                    .text(function(d) { return d.key; })
+                                    .append("svg:animate")
+                                    .attr("attributeType", "XML")
+                                    .attr("attributeName", "opacity")
+                                    .attr("from", "1")
+                                    .attr("to", "0")
+                                    .attr("dur", "3s")
+                                    .attr("repeatCount", 1)
+                                    .attr("fill", "freeze");
+                        
+                                // Update makers
+                                function transform(d) {
+                                    d = new google.maps.LatLng(d.value[1], d.value[0]);
+                                    d = projection.fromLatLngToDivPixel(d);
+                                    return d3.select(this)
+                                        .style("left", (d.x - padding) + "px")
+                                        .style("top", (d.y - padding) + "px");
+                                    };
+                        
+                                // For timer
+                                var marker1 = layer.selectAll("rect")
+                                    .data(d3.entries("null"))
+                                    .each(transform1)
+                                    .enter().append("svg:svg")
+                                    .each(transform1)
+                                    .attr("class", "marker1");
+                        
+                                marker1.append("svg:rect")
+                                    .attr("x", padding)
+                                    .attr("y", padding);
+                        
+                                // Add a label
+                                marker1.append("svg:text")
+                                    .attr("x", padding)
+                                    .attr("y", padding)
+                                    .attr("font-size", "18")
+                                    .attr("dy", ".31em")
+                                    .text(function(d) {
+                                        var d = new Date();
+                                        return d.toLocaleString();})
+                                    .append("svg:animate")
+                                    .attr("attributeType", "XML")
+                                    .attr("attributeName", "opacity")
+                                    .attr("from", "1")
+                                    .attr("to", "0")
+                                    .attr("dur", "0.08s")
+                                    .attr("repeatCount", 1)
+                                    .attr("fill", "freeze");
+                        
+                                // Update timer
+                                function transform1(d) {
+                                    d = new google.maps.LatLng(40.87, -73.81);
+                                    d = projection.fromLatLngToDivPixel(d);
+                                    return d3.select(this)
+                                        .style("left", (d.x - padding) + "px")
+                                        .style("top", (d.y - padding) + "px");
+                                };
+                            };
+                        };
+                        
+                        // Set the overlap to the map
+                        overlay.setMap(map);
+                    });
+            }
+        </script>
+    </body>
+</html>
