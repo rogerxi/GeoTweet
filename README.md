@@ -1,18 +1,21 @@
 # GeoTweet
 Tweets on Geographical Map
 
-This application is to filter tweets locations using Twitter Streaming API and show them in Google Map in real-time. It uses Python to fetch the locations of tweets from Twitter and save them in local json files, which are called by D3 in HTML. The locations are marked in real time in the map and fade away in seconds.
+
+This application is to filter tweets from Twitter Streaming API by locations, and represent them synchronously in Google Map. It is not implemented in web framework, but in a simple way: geotweet.py fetches the locations of tweets from Twitter and saves them in local json files, which transfer the data to D3.js in index.html. This HTML file builds a Google map where the locations is marked in real-time and fade away in seconds.
+
 
 
 How to use:
 
-1. Keep geotweet.py, index.html and folder data (saving temporary streaming tweets in .json) in the same directory;
+1. Keep geotweet.py, index.html and folder data (for saving temporary streaming tweets in .json) in the same directory;
 
 2. In geotweets.py, change DATA_DIR to the path of folder data in your directory, e.g., DATA_DIR = '/usr/geotweet/data';
 
-3. In geotweets.py, filter tweets by locations which is defined using TRACK_LOC (e.g., '-74,40,-73,41': New York City);
+3. In geotweets.py, filter tweets by locations which are defined in TRACK_LOC (e.g., '-74,40,-73,41': New York City);
 
 4. Run geotweets.py firstly, then open index.html in web browser, e.g., Safari.
+
 
 
 Limitations:
