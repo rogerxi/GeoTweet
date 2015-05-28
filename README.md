@@ -5,9 +5,13 @@ This application is to filter tweets locations using Twitter Streaming API and s
 
 
 How to use:
+
 1. Keep geotweet.py, index.html and folder data (saving temporary streaming tweets in .json) in the same directory;
+
 2. In geotweets.py, change DATA_DIR to the path of folder data in your directory, e.g., DATA_DIR = '/usr/geotweet/data';
+
 3. In geotweets.py, filter tweets by locations which is defined using TRACK_LOC (e.g., '-74,40,-73,41': New York City);
+
 4. Run geotweets.py firstly, then open index.html in web browser, e.g., Safari.
 
 
